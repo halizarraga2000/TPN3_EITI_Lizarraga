@@ -1,8 +1,5 @@
-/* Copyright 2022, Laboratorio de Microprocesadores
- * Facultad de Ciencias Exactas y Tecnología
- * Universidad Nacional de Tucuman
- * http://www.microprocesadores.unt.edu.ar/
- * Copyright 2022, Esteban Volentini <evolentini@herrera.unt.edu.ar>
+/* EITI - Universidad Nacional de Tucuman
+ * Copyright 2022, Hugo Lizarraga <lizarragahugo@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +38,7 @@
 /* === Headers files inclusions =============================================================== */
 
 #include "chip.h"
+#include "digital.h"
 #include <stdbool.h>
 
 /* === Macros definitions ====================================================================== */
@@ -162,11 +160,15 @@ int main(void) {
     Chip_SCU_PinMuxSet(TEC_4_PORT, TEC_4_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_4_FUNC);
     Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT, false);
 
+    digital_output_t led_azul = DigitalOutputCreate (LED_B_GPIO,LED_B_BIT);
+
     while (true) {
         if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT) == 0) {
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
+            DigitalOutputActivate (led_azul);
+            //Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
         } else {
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, false);
+            DigitalOutputDeactivate (led_azul);
+            //Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, false);
         }
 
         current_state = (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_2_GPIO, TEC_2_BIT) == 0);
