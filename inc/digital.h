@@ -51,6 +51,8 @@
  */
 
 /* === Inclusiones de archivos externos ==================================== */
+#include <stdbool.h>
+#include <stdint.h>
 
 /* === Cabecera C++ ======================================================== */
 #ifdef __cplusplus
@@ -58,20 +60,29 @@ extern "C" {
 #endif
 
 /* === Definicion y Macros publicos ======================================== */
-#include <stdint.h>
 
 /* == Declaraciones de tipos de datos publicos ============================= */
 
 typedef struct digital_output_s * digital_output_t;
 
+typedef struct digital_input_s * digital_input_t;
+
 /* === Declaraciones de variables publicas ================================= */
 
 /* === Declaraciones de funciones publicas ================================= */
 
-digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin);
+digital_output_t DigitalOutputCreate(uint8_t gpio, uint8_t bit);
+//digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin);
 void DigitalOutputActivate(digital_output_t output);
 void DigitalOutputDeactivate(digital_output_t output);
 void DigitalOutputToggle(digital_output_t output);
+
+//digital_input_t DigitalInputCreate(uint8_t port, uint8_t pin, bool inverted);
+digital_input_t DigitalInputCreate(uint8_t gpio, uint8_t bit, bool inverted);
+bool DigitalInputGetState(digital_input_t input);
+bool DigitalInputHasChanged(digital_input_t input);
+bool DigitalInputHasActivated(digital_input_t input);
+bool DigitalInputHasDeactivated(digital_input_t input);
 
 /* === Ciere de documentacion ============================================== */
 #ifdef __cplusplus
