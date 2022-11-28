@@ -39,6 +39,8 @@
 
 #include "bsp.h"
 #include <stdbool.h>
+#include "poncho.h"
+#include "chip.h"
 
 /* === Macros definitions ====================================================================== */
 
@@ -58,44 +60,13 @@
 
 int main(void) {
 
-    int divisor  = 0;
+    //int divisor  = 0;
     board_t board = BoardCreate();
 
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, DIGIT_1_GPIO, DIGIT_1_BIT, false);
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, SEGMENT_A_GPIO, SEGMENT_A_BIT, false);
+
     while (true) {
-        //if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT) == 0) {
-        if (DigitalInputGetState(board->boton_prueba)) {
-            DigitalOutputActivate (board->led_azul);
-            //Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
-        } else {
-            DigitalOutputDeactivate (board->led_azul);
-            //Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, false);
-        }
-
-        //current_state = (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_2_GPIO, TEC_2_BIT) == 0);
-        //if ((current_state) && (!last_state)) {
-        if (DigitalInputHasActivated(board->boton_cambiar)) {
-            DigitalOutputToggle(board->led_rojo);
-            //Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT);
-        }
-        //last_state = current_state;
-
-        //if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT) == 0) {
-        if (DigitalInputGetState(board->boton_prender)) {
-            DigitalOutputActivate(board->led_amarillo);
-            //Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT, true);
-        }
-        //if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT) == 0) {
-        if (DigitalInputGetState(board->boton_apagar)) {
-            DigitalOutputDeactivate(board->led_amarillo);
-            //Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT, false);
-        }
-
-        divisor++;
-        if (divisor == 5) {
-            divisor = 0;
-            DigitalOutputToggle(board->led_verde);
-            //Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT);
-        }
 
         for (int index = 0; index < 100; index++) {
             for (int delay = 0; delay < 25000; delay++) {
