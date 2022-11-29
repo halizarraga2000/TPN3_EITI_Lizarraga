@@ -58,7 +58,7 @@
 #endif
 
 #ifndef INPUT_INSTANCES
-   #define INPUT_INSTANCES 4
+   #define INPUT_INSTANCES 6
 #endif
 
 /* === Declaraciones de tipos de datos privados ============================ */
