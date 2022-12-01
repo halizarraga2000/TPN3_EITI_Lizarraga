@@ -24,8 +24,6 @@
 
 /* === Inclusiones de cabeceras ============================================ */
 #include "pantalla.h"
-#include "poncho.h"
-#include "chip.h"
 #include <string.h>
 
 /* === Definicion y Macros privados ======================================== */
@@ -37,6 +35,7 @@ struct display_s {
     uint8_t digits;
     uint8_t active_digit;
     uint8_t memory [DISPLAY_MAX_DIGITS];
+    struct display_driver_s driver;
 };
 
 /* === Definiciones de variables privadas ================================== */
@@ -60,28 +59,21 @@ static const uint8_t IMAGES[] = {
 /* === Declaraciones de funciones privadas ================================= */
 
 /* === Definiciones de funciones privadas ================================== */
-void ScreenOff(){
-    Chip_GPIO_ClearValue (LPC_GPIO_PORT, DIGITS_GPIO, DIGITS_MASK);
-    Chip_GPIO_ClearValue (LPC_GPIO_PORT, SEGMENTS_GPIO, SEGMENTS_MASK);
-}
-
-void WriteNumber(uint8_t segments){
-    Chip_GPIO_SetValue (LPC_GPIO_PORT, SEGMENTS_GPIO, segments);
-}
-
-void SelectDigit(uint8_t digit){
-    Chip_GPIO_SetValue (LPC_GPIO_PORT, DIGITS_GPIO, (1<<digit));
-}
 
 /* === Definiciones de funciones publicas ================================== */
-display_t DisplayCreate(uint8_t digits){
+display_t DisplayCreate(uint8_t digits, display_driver_t driver){
     display_t display = instances;
 
     display->digits = digits;
     display->active_digit = digits-1;
     memset (display->memory, 0, sizeof(display->memory));
 
-    ScreenOff();
+    //ScreenOff();
+    display->driver.ScreenTurnOff = driver->ScreenTurnOff;
+    display->driver.SegmentsTurnOn = driver->SegmentsTurnOn;
+    display->driver.DigitTurnOn = driver->DigitTurnOn;
+    display->driver.ScreenTurnOff();
+
     return display;
 }
 
@@ -94,15 +86,19 @@ void DisplayWriteBDC(display_t display, uint8_t * number, uint8_t size){
 }
 
 void DisplayRefresh(display_t display){
-    ScreenOff();
+    //ScreenOff();
+    display->driver.ScreenTurnOff();
+
     if(display->active_digit == display->digits-1){
         display->active_digit = 0;
 
     }else{
         display->active_digit = display->active_digit + 1;
     }
-    WriteNumber(display->memory[display->active_digit]);
-    SelectDigit(display->active_digit);
+    //WriteNumber(display->memory[display->active_digit]);
+    //SelectDigit(display->active_digit);
+    display->driver.SegmentsTurnOn(display->memory[display->active_digit]);
+    display->driver.DigitTurnOn(display->active_digit);
 }
 
 

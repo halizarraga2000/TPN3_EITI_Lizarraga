@@ -40,7 +40,8 @@
 #include "bsp.h"
 #include <stdbool.h>
 #include "pantalla.h"
-
+#include "poncho.h"
+#include "chip.h"
 
 /* === Macros definitions ====================================================================== */
 
@@ -56,7 +57,18 @@
 /* === Private variable definitions ============================================================ */
 
 /* === Private function implementation ========================================================= */
+void ScreenOff(){
+    Chip_GPIO_ClearValue (LPC_GPIO_PORT, DIGITS_GPIO, DIGITS_MASK);
+    Chip_GPIO_ClearValue (LPC_GPIO_PORT, SEGMENTS_GPIO, SEGMENTS_MASK);
+}
 
+void WriteNumber(uint8_t segments){
+    Chip_GPIO_SetValue (LPC_GPIO_PORT, SEGMENTS_GPIO, segments);
+}
+
+void SelectDigit(uint8_t digit){
+    Chip_GPIO_SetValue (LPC_GPIO_PORT, DIGITS_GPIO, (1<<digit));
+}
 
 /* === Public function implementation ========================================================= */
 
@@ -64,10 +76,16 @@ int main(void) {
     //uint8_t valor = 0;
     //uint8_t actual = 0;
     //bool refrescar = true;
+    static const struct display_driver_s display_driver = {
+        .ScreenTurnOff = ScreenOff,
+        .SegmentsTurnOn = WriteNumber,
+        .DigitTurnOn = SelectDigit,
+    };
 
     uint8_t numero[4] = {1,2,3,4};
     board_t board = BoardCreate();
-    display_t display = DisplayCreate(4);
+    display_t display = DisplayCreate(4, &display_driver);
+
     DisplayWriteBDC(display, numero, sizeof(numero));
 
     while (true) {
