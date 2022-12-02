@@ -27,6 +27,7 @@
 #include "chip.h"
 #include "poncho.h"
 
+
 /* === Definicion y Macros privados ======================================== */
 
 /* === Declaraciones de tipos de datos privados ============================ */
@@ -41,6 +42,11 @@ static void DigitsInit(void);
 static void SegmentsInit(void);
 static void BuzzerInit(void);
 static void KeyInit(void);
+
+static void DisplayInit(void);
+static void ScreenOff();
+static void WriteNumber(uint8_t segments);
+static void SelectDigit(uint8_t digit);
 
 /* === Definiciones de funciones privadas ================================== */
 void DigitsInit(void){
@@ -120,12 +126,36 @@ void KeyInit(void){
     board.cancel = DigitalInputCreate (KEY_CANCEL_GPIO, KEY_CANCEL_BIT, true);
 }
 
+void DisplayInit(void){
+    static const struct display_driver_s display_driver = {
+        .ScreenTurnOff = ScreenOff,
+        .SegmentsTurnOn = WriteNumber,
+        .DigitTurnOn = SelectDigit,
+    };
+    board.display = DisplayCreate(4, &display_driver);
+}
+
+void ScreenOff(){
+    Chip_GPIO_ClearValue (LPC_GPIO_PORT, DIGITS_GPIO, DIGITS_MASK);
+    Chip_GPIO_ClearValue (LPC_GPIO_PORT, SEGMENTS_GPIO, SEGMENTS_MASK);
+}
+
+void WriteNumber(uint8_t segments){
+    Chip_GPIO_SetValue (LPC_GPIO_PORT, SEGMENTS_GPIO, segments);
+}
+
+void SelectDigit(uint8_t digit){
+    Chip_GPIO_SetValue (LPC_GPIO_PORT, DIGITS_GPIO, (1<<digit));
+}
+
+
 /* === Definiciones de funciones publicas ================================== */
 board_t BoardCreate (void) {
     BuzzerInit();
     KeyInit();
     DigitsInit();
     SegmentsInit();
+    DisplayInit();  //<----
 
     return & board;
 }
