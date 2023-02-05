@@ -63,7 +63,7 @@
 int main(void) {
     board_t board = BoardCreate();
 
-    //DisplayWriteBDC(board->display, numero, sizeof(numero));
+    SisTick_Init(1000);
 
     while (true) {
         if (DigitalInputHasActivated(board->accept)) {
@@ -85,10 +85,7 @@ int main(void) {
 
         if (DigitalInputHasActivated(board->decrement)) {
         }
-
-        DisplayRefresh(board->display);
-
-
+        
         for (int index = 0; index < 100; index++) {
             for (int delay = 0; delay < 2500; delay++) {
                 __asm("NOP");
@@ -96,6 +93,11 @@ int main(void) {
         }
     }
 }
+
+void SysTick_Handler(void){
+    DisplayRefresh(board->display);
+}
+
 
 /* === End of documentation ==================================================================== */
 
