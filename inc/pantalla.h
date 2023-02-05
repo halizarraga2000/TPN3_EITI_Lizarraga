@@ -83,7 +83,7 @@ void DisplayWriteBDC(display_t display, uint8_t * number, uint8_t size);
  * 
  * @param display Puntero al descriptor de la pantalla que se debe refrescar
  */
-void DiplayRefresh(display_t display);
+void DisplayRefresh(display_t display);
 
 /* === Declaraciones de funciones publicas ================================= */
 

@@ -86,17 +86,8 @@ void DisplayWriteBDC(display_t display, uint8_t * number, uint8_t size){
 }
 
 void DisplayRefresh(display_t display){
-    //ScreenOff();
     display->driver.ScreenTurnOff();
-
-    if(display->active_digit == display->digits-1){
-        display->active_digit = 0;
-
-    }else{
-        display->active_digit = display->active_digit + 1;
-    }
-    //WriteNumber(display->memory[display->active_digit]);
-    //SelectDigit(display->active_digit);
+    display->active_digit = (display->active_digit + 1) % display->digits;
     display->driver.SegmentsTurnOn(display->memory[display->active_digit]);
     display->driver.DigitTurnOn(display->active_digit);
 }

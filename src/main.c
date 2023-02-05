@@ -61,64 +61,39 @@
 /* === Public function implementation ========================================================= */
 
 int main(void) {
-    uint8_t numero[4] = {1,2,3,4};
     board_t board = BoardCreate();
 
-    DisplayWriteBDC(board->display, numero, sizeof(numero));
+    //DisplayWriteBDC(board->display, numero, sizeof(numero));
 
     while (true) {
-        DisplayRefresh(board->display);
-        
-//        if(refrescar){
-//            //refrescar = false;
-//            ScreenOff();
-//            WriteNumber(screen[actual]);
-//            SelectDigit(actual);
-//        }
-//        if (actual == 3) {
-//            actual = 0;
-//        } else {
-//            actual = actual + 1;
-//        }
-//-----------------------------------------------------------
-//        if (DigitalInputHasActivated(board->set_time)) {
-//            if (valor == 9) {
-//                valor = 0;
-//            } else {
-//                valor = valor + 1;
-//            }
-//            refrescar = true;
-//        }
-//        if (DigitalInputHasActivated(board->set_alarm)) {
-//            if (valor == 0) {
-//                valor = 9;
-//            } else {
-//                valor = valor - 1;
-//            }
-//            refrescar = true;
-//        }
-//        if (DigitalInputHasActivated(board->increment)) {
-//            if (actual == 3) {
-//                actual = 0;
-//            } else {
-//                actual = actual + 1;
-//            }
-//            refrescar = true;
-//        }
-//        if (DigitalInputHasActivated(board->decrement)) {
-//            if (actual == 0) {
-//                actual = 3;
-//            } else {
-//                actual = valor - 1;
-//            }
-//            refrescar = true;
-//        }
+        if (DigitalInputHasActivated(board->accept)) {
+            DisplayWriteBDC(board->display, (uint8_t[]){1,2,3,4},4);
+        }
 
-//        for (int index = 0; index < 100; index++) {
+        if (DigitalInputHasActivated(board->cancel)) {
+            DisplayWriteBDC(board->display, NULL, 0);
+        }
+
+        if (DigitalInputHasActivated(board->set_time)) {
+        }
+
+        if (DigitalInputHasActivated(board->set_alarm)) {
+        }
+
+        if (DigitalInputHasActivated(board->increment)) {
+        }
+
+        if (DigitalInputHasActivated(board->decrement)) {
+        }
+
+        DisplayRefresh(board->display);
+
+
+        for (int index = 0; index < 100; index++) {
             for (int delay = 0; delay < 2500; delay++) {
                 __asm("NOP");
             }
-//        }
+        }
     }
 }
 
