@@ -43,11 +43,6 @@ static void SegmentsInit(void);
 static void BuzzerInit(void);
 static void KeyInit(void);
 
-static void DisplayInit(void);
-static void ScreenOff();
-static void WriteNumber(uint8_t segments);
-static void SelectDigit(uint8_t digit);
-
 /* === Definiciones de funciones privadas ================================== */
 void DigitsInit(void){
     Chip_SCU_PinMuxSet(DIGIT_1_PORT, DIGIT_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | DIGIT_1_FUNC);
@@ -126,35 +121,33 @@ void KeyInit(void){
     board.cancel = DigitalInputCreate (KEY_CANCEL_GPIO, KEY_CANCEL_BIT, false);  //true
 }
 
-void DisplayInit(void){
-    static const struct display_driver_s display_driver = {
-        .ScreenTurnOff = ScreenOff,
-        .SegmentsTurnOn = WriteNumber,
-        .DigitTurnOn = SelectDigit,
-    };
-    board.display = DisplayCreate(4, &display_driver);
+void ScreenTurnOff(void){
+    Chip_GPIO_ClearValue(LPC_GPIO_PORT, DIGITS_GPIO, DIGITS_MASK);
+    Chip_GPIO_ClearValue(LPC_GPIO_PORT, SEGMENTS_GPIO, SEGMENTS_MASK);
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, SEGMENT_P_GPIO, SEGMENT_P_BIT, false);
 }
 
-void ScreenOff(){
-    Chip_GPIO_ClearValue (LPC_GPIO_PORT, DIGITS_GPIO, DIGITS_MASK);
-    Chip_GPIO_ClearValue (LPC_GPIO_PORT, SEGMENTS_GPIO, SEGMENTS_MASK);
+void SegmentsTurnOn(uint8_t segments){
+    Chip_GPIO_SetValue(LPC_GPIO_PORT, SEGMENTS_GPIO, (segments) & SEGMENTS_MASK);
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, SEGMENT_P_GPIO, SEGMENT_P_BIT, (segments & SEGMENT_P));
 }
 
-void WriteNumber(uint8_t segments){
-    Chip_GPIO_SetValue (LPC_GPIO_PORT, SEGMENTS_GPIO, segments);
-}
-
-void SelectDigit(uint8_t digit){
-    Chip_GPIO_SetValue (LPC_GPIO_PORT, DIGITS_GPIO, (1<<digit));
+void DigitTurnOn(uint8_t digit){
+    Chip_GPIO_SetValue(LPC_GPIO_PORT, DIGITS_GPIO, (1 << (3 - digit)) & DIGITS_MASK);
 }
 
 /* === Definiciones de funciones publicas ================================== */
 board_t BoardCreate (void) {
-    DisplayInit();  //<----
     DigitsInit();
     SegmentsInit();
     BuzzerInit();
     KeyInit();
+
+    board.display = DisplayCreate(4, &(struct display_driver_s){
+        .ScreenTurnOff = ScreenTurnOff,
+        .SegmentsTurnOn = SegmentsTurnOn,
+        .DigitTurnOn = DigitTurnOn,
+    });
 
     return & board;
 }
