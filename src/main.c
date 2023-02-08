@@ -70,6 +70,7 @@ int main(void) {
     while (true) {
         if (DigitalInputHasActivated(board->accept)) {
             DisplayWriteBDC(board->display, (uint8_t[]){1,2,3,4},4);
+            DisplayToggleDots(board->display, 1, 2);
         }
 
         if (DigitalInputHasActivated(board->cancel)) {
