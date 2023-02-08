@@ -130,6 +130,12 @@ void DisplayFlashDigits(display_t display, uint8_t from, uint8_t to, uint16_t fr
     display->flashing_frecuency = frecuency;
 }
 
+void DisplayToggleDots(display_t display, uint8_t from, uint8_t to){
+    for(int index = from; index <= to; index++){
+        display->memory[index] ^= (1 << 7);
+    }
+}
+
 
 /* === Ciere de documentacion ============================================== */
 
