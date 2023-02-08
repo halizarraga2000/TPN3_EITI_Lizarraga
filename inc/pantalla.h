@@ -58,7 +58,7 @@ typedef struct display_driver_s{
     display_screen_off_t ScreenTurnOff;
     display_segments_on_t SegmentsTurnOn;
     display_digit_on_t DigitTurnOn;
-}const * display_driver_t;
+}const * const display_driver_t;
 
 /* === Declaraciones de variables publicas ================================= */
 /**
@@ -84,6 +84,9 @@ void DisplayWriteBDC(display_t display, uint8_t * number, uint8_t size);
  * @param display Puntero al descriptor de la pantalla que se debe refrescar
  */
 void DisplayRefresh(display_t display);
+
+void DisplayFlashDigits(display_t display, uint8_t from, uint8_t to, uint16_t frecuency);
+
 
 /* === Declaraciones de funciones publicas ================================= */
 

@@ -153,7 +153,7 @@ board_t BoardCreate (void) {
 }
 
 void SisTick_Init(uint16_t ticks){
-    __asm volatile("spsid i");
+    __asm volatile("cpsid i");
 
     /*Activate SysTick */
     SystemCoreClockUpdate();

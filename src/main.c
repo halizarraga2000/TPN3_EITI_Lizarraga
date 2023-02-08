@@ -51,8 +51,9 @@
 
 /* === Private function declarations =========================================================== */
 
-
 /* === Public variable definitions ============================================================= */
+
+static board_t board;
 
 /* === Private variable definitions ============================================================ */
 
@@ -64,6 +65,7 @@ int main(void) {
     board_t board = BoardCreate();
 
     SisTick_Init(1000);
+    DisplayFlashDigits(board->display, 0, 1, 250);
 
     while (true) {
         if (DigitalInputHasActivated(board->accept)) {

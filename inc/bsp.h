@@ -53,6 +53,9 @@ typedef struct board_s {
 /* === Declaraciones de funciones publicas ================================= */
 board_t BoardCreate (void);
 
+void SisTick_Init(uint16_t ticks);  // revisar !!!
+
+
 /* === Ciere de documentacion ============================================== */
 #ifdef __cplusplus
 }

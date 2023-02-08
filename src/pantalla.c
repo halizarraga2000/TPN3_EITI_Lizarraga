@@ -34,12 +34,16 @@
 struct display_s {
     uint8_t digits;
     uint8_t active_digit;
+    uint8_t flashing_from;
+    uint8_t flashing_to;
+    uint16_t flashing_frecuency;
+    uint16_t flashing_count;
     uint8_t memory [DISPLAY_MAX_DIGITS];
-    struct display_driver_s driver;
+    struct display_driver_s driver[1];
 };
 
 /* === Definiciones de variables privadas ================================== */
-static struct display_s instances[1];
+//static struct display_s instances[1];
 
 static const uint8_t IMAGES[] = {
     SEGMENT_A | SEGMENT_B | SEGMENT_C | SEGMENT_D | SEGMENT_E | SEGMENT_F,              //! < 0
@@ -57,22 +61,30 @@ static const uint8_t IMAGES[] = {
 /* === Definiciones de variables publicas ================================== */
 
 /* === Declaraciones de funciones privadas ================================= */
+static display_t DisplayAllocate(void);
 
 /* === Definiciones de funciones privadas ================================== */
+display_t DisplayAllocate(void){
+    static struct display_s instances[1] = {0};
+
+    return &instances[0];
+}
 
 /* === Definiciones de funciones publicas ================================== */
 display_t DisplayCreate(uint8_t digits, display_driver_t driver){
-    display_t display = instances;
+    display_t display = DisplayAllocate();
 
-    display->digits = digits;
-    display->active_digit = digits-1;
-    memset (display->memory, 0, sizeof(display->memory));
-
-    //ScreenOff();
-    display->driver.ScreenTurnOff = driver->ScreenTurnOff;
-    display->driver.SegmentsTurnOn = driver->SegmentsTurnOn;
-    display->driver.DigitTurnOn = driver->DigitTurnOn;
-    display->driver.ScreenTurnOff();
+    if (display){
+        display->digits = digits;
+        display->active_digit = digits-1;
+        display->flashing_count = 0;
+        display->flashing_from = 0;
+        display->flashing_to = 0;
+        display->flashing_frecuency = 0;
+        memcpy (display->driver, driver,sizeof(display->driver));
+        memset (display->memory, 0, sizeof(display->memory));
+        display->driver->ScreenTurnOff();
+    }
 
     return display;
 }
@@ -86,10 +98,36 @@ void DisplayWriteBDC(display_t display, uint8_t * number, uint8_t size){
 }
 
 void DisplayRefresh(display_t display){
-    display->driver.ScreenTurnOff();
+    uint8_t segments;
+    display->driver->ScreenTurnOff();
     display->active_digit = (display->active_digit + 1) % display->digits;
-    display->driver.SegmentsTurnOn(display->memory[display->active_digit]);
-    display->driver.DigitTurnOn(display->active_digit);
+
+    if (display->active_digit == 0){
+        display->flashing_count++;
+        if (display->flashing_count >= display->flashing_frecuency){
+            display->flashing_count = 0;
+        }
+    }
+
+    segments = display->memory[display->active_digit];
+    if (display->flashing_frecuency > 0){
+        if (display->flashing_count >= display->flashing_frecuency / 2){
+            if ((display->active_digit >= display ->flashing_from) && (display->active_digit <= display->flashing_to)){
+                segments = 0;
+            }
+        }
+    }
+
+    display->driver->SegmentsTurnOn(segments); //display->memory[display->active_digit]);
+
+    display->driver->DigitTurnOn(display->active_digit);
+}
+
+void DisplayFlashDigits(display_t display, uint8_t from, uint8_t to, uint16_t frecuency){
+    display->flashing_count = 0;
+    display->flashing_from = from;
+    display->flashing_to = to;
+    display->flashing_frecuency = frecuency;
 }
 
 
