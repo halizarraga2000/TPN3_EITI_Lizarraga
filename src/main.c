@@ -38,14 +38,26 @@
 /* === Headers files inclusions =============================================================== */
 
 #include "bsp.h"
+#include "clock.h"
 #include <stdbool.h>
-#include "pantalla.h"
-#include "poncho.h"
-#include "chip.h"
+#include <stddef.h>
+
+//#include "pantalla.h"
+//#include "poncho.h"
+//#include "chip.h"
 
 /* === Macros definitions ====================================================================== */
 
 /* === Private data type declarations ========================================================== */
+
+typedef enum{
+    HORA_SIN_AJUSTAR,
+    MOSTRANDO_HORA,
+    AJUSTANDO_MINUTOS_ACTUAL,
+    AJUSTANDO_HORAS_ACTUAL,
+    AJUSTANDO_MINUTOS_ALARMA,
+    AJUSTANDO_HORAS_ALARMA,
+} modo_t;
 
 /* === Private variable declarations =========================================================== */
 
@@ -53,19 +65,57 @@
 
 /* === Public variable definitions ============================================================= */
 
-static board_t board;
-
 /* === Private variable definitions ============================================================ */
 
+static board_t board;
+
+static modo_t modo;
+
+static clock_t reloj;
+
 /* === Private function implementation ========================================================= */
+
+void CambiarModo(modo_t valor){
+    modo = valor;
+    switch (modo){
+    case HORA_SIN_AJUSTAR:
+        DisplayFlashDigits(board->display, 0, 3, 250);
+        break;
+    case MOSTRANDO_HORA:
+        DisplayFlashDigits(board->display, 0, 0, 0);
+        break;
+    case AJUSTANDO_MINUTOS_ACTUAL:
+        DisplayFlashDigits(board->display, 2, 3, 250);
+        break;
+    case AJUSTANDO_HORAS_ACTUAL:
+        DisplayFlashDigits(board->display, 0, 1, 250);
+        break;
+    case AJUSTANDO_MINUTOS_ALARMA:
+        DisplayFlashDigits(board->display, 2, 3, 250);
+        break;
+    case AJUSTANDO_HORAS_ALARMA:
+        DisplayFlashDigits(board->display, 0, 1, 250);
+        break;
+    
+    default:
+        break;
+    }
+    
+}
+
+void SonarAlarma(clock_t clock){
+
+}
 
 /* === Public function implementation ========================================================= */
 
 int main(void) {
     board_t board = BoardCreate();
+    //board = BoardCreate();
+    reloj = ClockCreate(1000, SonarAlarma); 
 
-    SisTick_Init(1000);
-    DisplayFlashDigits(board->display, 0, 1, 250);
+    SisTick_Init(10);  //10000
+    CambiarModo(HORA_SIN_AJUSTAR);
 
     while (true) {
         if (DigitalInputHasActivated(board->accept)) {
@@ -90,7 +140,7 @@ int main(void) {
         }
         
         for (int index = 0; index < 100; index++) {
-            for (int delay = 0; delay < 2500; delay++) {
+            for (int delay = 0; delay < 25000; delay++) {
                 __asm("NOP");
             }
         }
@@ -98,7 +148,14 @@ int main(void) {
 }
 
 void SysTick_Handler(void){
+    uint8_t hora[4];
+
     DisplayRefresh(board->display);
+    ClockNewTick(reloj);
+    if (modo <= MOSTRANDO_HORA){
+        ClockGetTime(reloj, hora, sizeof(hora));
+        DisplayWriteBDC(board->display, hora, sizeof(hora));
+    }
 }
 
 
